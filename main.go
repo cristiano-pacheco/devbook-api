@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api/src/config"
 	"api/src/router"
 	"fmt"
 	"log"
@@ -8,8 +9,11 @@ import (
 )
 
 func main() {
-	fmt.Println("Oh Yeah!")
+	config.Load()
+	fmt.Println("DSN: " + config.DatabaseDSN)
 	r := router.Generate()
 
-	log.Fatal(http.ListenAndServe(":5000", r))
+	address := fmt.Sprintf(":%d", config.ApiPort)
+	fmt.Println(address)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.ApiPort), r))
 }
