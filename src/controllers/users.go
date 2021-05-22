@@ -162,10 +162,21 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 func UserDelete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	ID, err := strconv.ParseInt(params["id"], 10, 64)
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
 
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, err := authentication.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if ID != tokenUserID {
+		responses.Error(w, http.StatusForbidden, errors.New("is not possible to delete an user that is not you"))
 		return
 	}
 
@@ -179,7 +190,7 @@ func UserDelete(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewUserRepository(db)
 
-	err = repository.Delete(uint64(ID))
+	err = repository.Delete(ID)
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
