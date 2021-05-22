@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/authentication"
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -103,10 +105,21 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	ID, err := strconv.ParseInt(params["id"], 10, 64)
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
 
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, err := authentication.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if ID != tokenUserID {
+		responses.Error(w, http.StatusForbidden, errors.New("is not possible to update an user that is not you"))
 		return
 	}
 
@@ -137,7 +150,7 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewUserRepository(db)
 
-	err = repository.Update(uint64(ID), user)
+	err = repository.Update(ID, user)
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
