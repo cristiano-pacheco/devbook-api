@@ -48,4 +48,10 @@ var userRoutes = []Route{
 		Handler:                controllers.UserUnFollow,
 		RequiredAuthentication: true,
 	},
+	{
+		URI:                    "/users/{id}/followers",
+		Method:                 http.MethodGet,
+		Handler:                controllers.UserGetFollowers,
+		RequiredAuthentication: true,
+	},
 }
