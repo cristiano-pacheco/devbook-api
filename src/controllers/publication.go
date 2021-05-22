@@ -14,26 +14,30 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// func PublicationGetAll(w http.ResponseWriter, r *http.Request) {
-// 	nameOrNick := strings.ToLower(r.URL.Query().Get("usuario"))
+func PublicationGetAll(w http.ResponseWriter, r *http.Request) {
+	tokenUserID, err := authentication.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
 
-// 	db, err := database.Connect()
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-// 	defer db.Close()
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
 
-// 	repository := repositories.NewPublicationRepository(db)
-// 	publications, err := repository.Search(nameOrNick)
+	repository := repositories.NewPublicationRepository(db)
+	publications, err := repository.GetByUserID(tokenUserID)
 
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
-// 	responses.JSON(w, http.StatusOK, publications)
-// }
+	responses.JSON(w, http.StatusOK, publications)
+}
 
 func PublicationGet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)

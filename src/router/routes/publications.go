@@ -12,12 +12,12 @@ var publicationRoutes = []Route{
 		Handler:                controllers.PublicationCreate,
 		RequiredAuthentication: true,
 	},
-	// {
-	// 	URI:                    "/publications",
-	// 	Method:                 http.MethodGet,
-	// 	Handler:                controllers.PublicationGetAll,
-	// 	RequiredAuthentication: true,
-	// },
+	{
+		URI:                    "/publications",
+		Method:                 http.MethodGet,
+		Handler:                controllers.PublicationGetAll,
+		RequiredAuthentication: true,
+	},
 	{
 		URI:                    "/publications/{id}",
 		Method:                 http.MethodGet,
