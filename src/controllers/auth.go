@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api/src/authentication"
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
@@ -44,5 +45,7 @@ func IssueToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Authenticated"))
+	token, _ := authentication.IssueToken(dbUser.ID)
+
+	w.Write([]byte(token))
 }
