@@ -224,3 +224,35 @@ func (repository user) GetFollowing(userID uint64) ([]models.User, error) {
 
 	return users, nil
 }
+
+func (repository user) GetPasswordByID(ID uint64) (string, error) {
+	stmt, err := repository.db.Prepare("select password from users where id = ?")
+	if err != nil {
+		return "", err
+	}
+	defer stmt.Close()
+
+	var password string
+
+	err = stmt.QueryRow(ID).Scan(&password)
+	if err != nil {
+		return "", err
+	}
+
+	return password, nil
+}
+
+func (repository user) UpdatePassword(ID uint64, password string) error {
+	stmt, err := repository.db.Prepare("update users set password = ? where id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(ID, password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

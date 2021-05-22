@@ -6,6 +6,7 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
+	"api/src/security"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -331,4 +332,73 @@ func UserGetFollowing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, followers)
+}
+
+func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, err := authentication.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if ID != tokenUserID {
+		responses.Error(w, http.StatusForbidden, errors.New("is not possible to update an user password that is not you"))
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var p models.Password
+	if err = json.Unmarshal(body, &p); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+
+	actualPassword, err := repository.GetPasswordByID(ID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := security.PasswordVerify(p.Actual, actualPassword); err != nil {
+		responses.Error(w, http.StatusUnauthorized, errors.New("actual password is invalid"))
+		return
+	}
+
+	passwordHash, err := security.PasswordHash(p.New)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	err = repository.UpdatePassword(ID, string(passwordHash))
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
