@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/src/security"
 	"errors"
 	"strings"
 	"time"
@@ -17,11 +18,19 @@ type User struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
+const StepCreate = "create"
+
 func (user *User) Prepare(step string) error {
 	if err := user.validate(step); err != nil {
 		return err
 	}
-	user.format()
+
+	err := user.format(step)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -42,14 +51,25 @@ func (user *User) validate(step string) error {
 		return errors.New("the email is invalid")
 	}
 
-	if step == "create" && user.Password == "" {
+	if step == StepCreate && user.Password == "" {
 		return errors.New("password is required")
 	}
+
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(step string) error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+
+	if step == StepCreate {
+		hash, err := security.PasswordHash(user.Password)
+		if err != nil {
+			return err
+		}
+		user.Password = string(hash)
+	}
+
+	return nil
 }

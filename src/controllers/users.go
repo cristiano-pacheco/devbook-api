@@ -91,6 +91,7 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewUserRepository(db)
 	user.ID, err = repository.Create(user)
+	user.Password = ""
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
