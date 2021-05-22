@@ -38,7 +38,7 @@ import (
 func PublicationGet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	id, err := strconv.ParseInt(params["id"], 10, 64)
+	id, err := strconv.ParseUint(params["id"], 10, 64)
 
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
@@ -53,7 +53,7 @@ func PublicationGet(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repository := repositories.NewPublicationRepository(db)
-	publication, err := repository.Get(uint64(id))
+	publication, err := repository.Get(id)
 
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)

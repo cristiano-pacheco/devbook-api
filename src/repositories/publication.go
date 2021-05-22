@@ -34,3 +34,20 @@ func (repository publication) Create(publication models.Publication) (uint64, er
 
 	return uint64(lastInsertedID), nil
 }
+
+func (repository publication) Get(ID uint64) (models.Publication, error) {
+	p := models.Publication{}
+	err := repository.db.QueryRow(
+		`select p.id, author_id, u.nick, title, content, likes, p.created_at 
+		from publications p
+		join users u on p.author_id = u.id
+		where p.id = ?`,
+		ID,
+	).Scan(&p.ID, &p.AuthorID, &p.AuthorNick, &p.Title, &p.Content, &p.Likes, &p.CreatedAt)
+
+	if err != nil {
+		return models.Publication{}, err
+	}
+
+	return p, nil
+}
