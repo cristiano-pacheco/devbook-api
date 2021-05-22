@@ -4,7 +4,6 @@ import (
 	"api/src/middlewares"
 	"net/http"
 
-	"github.com/PacktPublishing/Echo-Essentials/chapter2/middlewares"
 	"github.com/gorilla/mux"
 )
 
