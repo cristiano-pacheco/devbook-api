@@ -9,6 +9,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // func PublicationGetAll(w http.ResponseWriter, r *http.Request) {
@@ -32,33 +35,33 @@ import (
 // 	responses.JSON(w, http.StatusOK, publications)
 // }
 
-// func PublicationGet(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
+func PublicationGet(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
 
-// 	id, err := strconv.ParseInt(params["id"], 10, 64)
+	id, err := strconv.ParseInt(params["id"], 10, 64)
 
-// 	if err != nil {
-// 		responses.Error(w, http.StatusBadRequest, err)
-// 		return
-// 	}
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
-// 	db, err := database.Connect()
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-// 	defer db.Close()
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
 
-// 	repository := repositories.NewPublicationRepository(db)
-// 	publication, err := repository.Get(uint64(id))
+	repository := repositories.NewPublicationRepository(db)
+	publication, err := repository.Get(uint64(id))
 
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
-// 	responses.JSON(w, http.StatusOK, publication)
-// }
+	responses.JSON(w, http.StatusOK, publication)
+}
 
 func PublicationCreate(w http.ResponseWriter, r *http.Request) {
 	userID, err := authentication.ExtractUserId(r)
@@ -80,10 +83,10 @@ func PublicationCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	publication.AuthorID = userID
 
-	// if err = publication.Prepare("create"); err != nil {
-	// 	responses.Error(w, http.StatusBadRequest, err)
-	// 	return
-	// }
+	if err = publication.Prepare(); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
 	db, err := database.Connect()
 	if err != nil {
