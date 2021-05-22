@@ -45,7 +45,12 @@ func IssueToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := authentication.IssueToken(dbUser.ID)
+	token, err := authentication.IssueToken(dbUser.ID)
+
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	w.Write([]byte(token))
 }
