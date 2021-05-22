@@ -141,14 +141,29 @@ func (repository user) GetByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
-func (repository user) Follow(userID, followID uint64) error {
+func (repository user) Follow(userID, followerID uint64) error {
 	stmt, err := repository.db.Prepare("insert ignore into followers values (user_id, follower_id) values (?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID, followID)
+	_, err = stmt.Exec(userID, followerID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository user) UnFollow(userID, followerID uint64) error {
+	stmt, err := repository.db.Prepare("delete from followers where user_id = ? and follwer_id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userID, followerID)
 	if err != nil {
 		return err
 	}
