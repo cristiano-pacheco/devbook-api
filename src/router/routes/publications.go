@@ -42,4 +42,16 @@ var publicationRoutes = []Route{
 		Handler:                controllers.UserPublications,
 		RequiredAuthentication: true,
 	},
+	{
+		URI:                    "publications/{id}/like",
+		Method:                 http.MethodPost,
+		Handler:                controllers.PublicationLike,
+		RequiredAuthentication: true,
+	},
+	{
+		URI:                    "publications/{id}/unlike",
+		Method:                 http.MethodPost,
+		Handler:                controllers.PublicationUnLike,
+		RequiredAuthentication: true,
+	},
 }

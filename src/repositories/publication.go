@@ -142,3 +142,39 @@ func (repository publication) GetByUser(ID uint64) ([]models.Publication, error)
 
 	return publications, nil
 }
+
+func (repository publication) Like(ID uint64) error {
+	stmt, err := repository.db.Prepare("update publications set likes = likes + 1 where id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository publication) UnLike(ID uint64) error {
+	stmt, err := repository.db.Prepare(
+		`update publications set likes = 
+		 case when likes > 0 then likes - 1
+		 else 0
+		 end
+		 where id = ?`,
+	)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
