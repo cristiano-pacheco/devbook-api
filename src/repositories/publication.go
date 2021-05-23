@@ -82,3 +82,18 @@ func (repository publication) GetByUserID(ID uint64) ([]models.Publication, erro
 
 	return publications, nil
 }
+
+func (repository publication) Update(ID uint64, publication models.Publication) error {
+	stmt, err := repository.db.Prepare("update publications set title = ? content = ? where id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(publication.Title, publication.Content, ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

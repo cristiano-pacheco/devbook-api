@@ -24,12 +24,12 @@ var publicationRoutes = []Route{
 		Handler:                controllers.PublicationGet,
 		RequiredAuthentication: true,
 	},
-	// {
-	// 	URI:                    "/publications/{id}",
-	// 	Method:                 http.MethodPut,
-	// 	Handler:                controllers.PublicationUpdate,
-	// 	RequiredAuthentication: true,
-	// },
+	{
+		URI:                    "/publications/{id}",
+		Method:                 http.MethodPut,
+		Handler:                controllers.PublicationUpdate,
+		RequiredAuthentication: true,
+	},
 	// {
 	// 	URI:                    "/publications/{id}",
 	// 	Method:                 http.MethodDelete,
