@@ -36,4 +36,10 @@ var publicationRoutes = []Route{
 		Handler:                controllers.PublicationDelete,
 		RequiredAuthentication: true,
 	},
+	{
+		URI:                    "users/{id}/publications",
+		Method:                 http.MethodGet,
+		Handler:                controllers.UserPublications,
+		RequiredAuthentication: true,
+	},
 }

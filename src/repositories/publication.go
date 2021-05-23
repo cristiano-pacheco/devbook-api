@@ -113,3 +113,32 @@ func (repository publication) Delete(ID uint64) error {
 
 	return nil
 }
+
+func (repository publication) GetByUser(ID uint64) ([]models.Publication, error) {
+	rows, err := repository.db.Query(
+		`select distinct p.id, author_id, u.nick, title, content, likes, p.created_at 
+		from publications p
+		join users u on p.author_id = u.id
+		where u.id = ?`,
+		ID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var publications []models.Publication
+
+	for rows.Next() {
+		var p models.Publication
+		err := rows.Scan(&p.ID, &p.AuthorID, &p.AuthorNick, &p.Title, &p.Content, &p.Likes, &p.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		publications = append(publications, p)
+	}
+
+	return publications, nil
+}
