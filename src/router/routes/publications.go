@@ -30,10 +30,10 @@ var publicationRoutes = []Route{
 		Handler:                controllers.PublicationUpdate,
 		RequiredAuthentication: true,
 	},
-	// {
-	// 	URI:                    "/publications/{id}",
-	// 	Method:                 http.MethodDelete,
-	// 	Handler:                controllers.PublicationDelete,
-	// 	RequiredAuthentication: true,
-	// },
+	{
+		URI:                    "/publications/{id}",
+		Method:                 http.MethodDelete,
+		Handler:                controllers.PublicationDelete,
+		RequiredAuthentication: true,
+	},
 }

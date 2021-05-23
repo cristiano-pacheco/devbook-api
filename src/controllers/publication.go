@@ -171,42 +171,45 @@ func PublicationUpdate(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
-// func PublicationDelete(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
+func PublicationDelete(w http.ResponseWriter, r *http.Request) {
+	tokenUserID, err := authentication.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
 
-// 	ID, err := strconv.ParseUint(params["id"], 10, 64)
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
-// 	if err != nil {
-// 		responses.Error(w, http.StatusBadRequest, err)
-// 		return
-// 	}
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
 
-// 	tokenPublicationID, err := authentication.ExtractPublicationId(r)
-// 	if err != nil {
-// 		responses.Error(w, http.StatusUnauthorized, err)
-// 		return
-// 	}
+	repository := repositories.NewPublicationRepository(db)
 
-// 	if ID != tokenPublicationID {
-// 		responses.Error(w, http.StatusForbidden, errors.New("is not possible to delete an publication that is not you"))
-// 		return
-// 	}
+	publicationSaved, err := repository.Get(ID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
-// 	db, err := database.Connect()
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
+	if publicationSaved.AuthorID != tokenUserID {
+		responses.Error(w, http.StatusForbidden, errors.New("is not possible to deletes a publication that is not yours"))
+		return
+	}
 
-// 	defer db.Close()
+	err = repository.Delete(ID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
-// 	repository := repositories.NewPublicationRepository(db)
-
-// 	err = repository.Delete(ID)
-// 	if err != nil {
-// 		responses.Error(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-
-// 	responses.JSON(w, http.StatusNoContent, nil)
-// }
+	responses.JSON(w, http.StatusNoContent, nil)
+}

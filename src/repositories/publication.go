@@ -97,3 +97,19 @@ func (repository publication) Update(ID uint64, publication models.Publication) 
 
 	return nil
 }
+
+func (repository publication) Delete(ID uint64) error {
+	stmt, err := repository.db.Prepare("delete from publications where id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
