@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 func IssueToken(w http.ResponseWriter, r *http.Request) {
@@ -52,5 +53,7 @@ func IssueToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(token))
+	userID := strconv.FormatUint(dbUser.ID, 10)
+
+	responses.JSON(w, http.StatusOK, models.Auth{ID: userID, Token: token})
 }
